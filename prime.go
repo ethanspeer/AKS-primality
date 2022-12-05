@@ -1,7 +1,8 @@
 package main
 
 import "fmt"
-import "math"
+// import "math"
+// import "math/big"
 
 //  TODO use math/big for integer exponentiation
 //  TODO add tests
@@ -18,102 +19,55 @@ func main() {
 
 func aks(n int) string {
   //1.
-    if(check_perfect_power(n)) {
-        return "composite"
-    }
-  //2.
-    var r int = find_smallest_r(n) //gives r
-  //3.
-    if(a_divides_n(n, r)) {
-        return "composite"
-    }
-  //4.
-    if(n <= r) {
-        return "prime"
-    }
-  //5.
-    polynomials(r, n)
-  //6.
     return "prime"
 }
 
-func check_perfect_power(n int) bool {
-    for a := 2; a < n; a++ {
-        for b := 2; b < n; b++ {
-            if(n == exponentiate(a, b)) {
-                return true
-            }
-        }
-    } 
-    return false
-}
 
-func find_smallest_r(n int) int {
-    bin := math.Log2((float64(n)))
-    for r := 0; r < n; r++ {
-        if(GCD(r, n) != 1) {
-            continue
-        }
-        for k := 0; k < r; k++ {
-           if(exponentiate(n, k) % r == 1) {
-            if(float64(k) > math.Pow(bin, 2)) {
-                return r
-            }
-           }
-        }
-    }
-  return 0
-}
 
-func a_divides_n(n, r int) bool {
-    min := 0
-    if(n > r-1) {
-        min = r - 1
-    } else {
-        min = n
-    }
-    for a := 2; a <= min; a++ {
-        if(n % a == 0) {
-            return true
-        }
-    }
-    return false
-}
-
-func polynomials(r int, n int) {
-    phi := math.Sqrt(float64(euler(r)))
-    bin := math.Log2((float64(n)))
-    a_bound := math.Floor(phi*bin)
-    for a := 1; a < a_bound; a++ {
-
-    }
-}
-
-func exponentiate(base int, exponent int) int {
-  output := 1  
-  for exponent != 0 {  
-  output *= base  
-  exponent -= 1  
- }  
- return output
-}
-
-func GCD(r, n int) int {
-	for n != 0 {
-		t := n
-		n = r % n
-		r = t
+// Given two integers a and b, GCD(a,b) returns g,u,v where 
+// g is the gcd(a,b) and au+bv = g 
+func GCD(a, b int) (int,int,int) {
+	// if b = 0, then the gcd is a 
+	if b == 0 {
+		return a,1,0
 	}
-	return r
-}
 
-func euler(n int) int {
-    var result int = 1
-    var i int
-    for i = 2; i < n; i++ {
-            if GCD(i, n) == 1 {
-                    result++
-            }
-    }
-    return result
+	// Keeps tracks of the sign of a and b and makes sure 
+	// a and b are non-negative 
+	var na , nb   bool 
+	if a < 0 {
+		na = true 
+		a *= -1 
+	}
+	if b < 0 {
+		nb = true
+		b *= -1 
+	}
+
+	// Variables we will return 
+	var g, u, v int 
+	u = 1 
+	g = a
+	x := 0  // keeps track of the number a's used in the Euclidean algorithm 
+	y := b  // keeps track of the denominator in the Euclidean algorithm
+	for y != 0 {
+		t := ModN(uint(y),g) // find t,q with g = qy + t 
+		q := g / y 
+		s := u - q*x  
+		u = x 
+		g = y 
+		x = s 
+		y = t 
+	}
+	v = (g-a*u)/b  
+	
+	if !na && !nb {
+		return g, u, v 
+	} else if !na && nb {
+		return g, u, -v 
+	} else if na && !nb {
+		return g, -u, v 
+	} else {
+		return g , -u, -v 
+	}
 }
