@@ -39,6 +39,7 @@ func aks(n int) string {
   return "prime"
 }
 
+//checks if given integer is a perfect power
 func check_perfect_power(n int) bool {
     max := math.Sqrt(float64(n)) + 1
     for i := 2; i < int(max); i++ {
@@ -55,6 +56,7 @@ func check_perfect_power(n int) bool {
     return false
 }
 
+//finds the smallest r such that ord_r(n) > log_2(n)^2
 func find_smallest_r(n int) int {
   bound := int(math.Ceil(math.Log2(float64(n)) * math.Log2(float64(n))))
 
@@ -66,6 +68,7 @@ func find_smallest_r(n int) int {
   return -1
 }
 
+//returns the multiplicative order
 func multiplicativeOrder(a, n int) int {
   if GCD(a, n) != 1 {
     return -1
@@ -82,6 +85,7 @@ func multiplicativeOrder(a, n int) int {
   return -1
 }
 
+// if (X+a)^n != X^(n) + a (mod X^(r) - 1, n), returns true for composite
 func polynomials(r, n int) bool {
     phi := math.Sqrt(float64(EulersTotient(r)))
     bin := math.Log2((float64(n)))
@@ -99,6 +103,7 @@ func polynomials(r, n int) bool {
     return false
 }
 
+//returns GCD of two integers
 func GCD(a, b int) int {
 	for b != 0 {
 		t := b
@@ -108,6 +113,7 @@ func GCD(a, b int) int {
 	return a
 }
 
+//returns eulers totient (phi) for an integer
 func EulersTotient(n int) int {
   result := 1
   for i := 2; i < n; i++ {
