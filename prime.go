@@ -87,12 +87,15 @@ func multiplicativeOrder(a, n int) int {
 
 // if (X+a)^n != X^(n) + a (mod X^(r) - 1, n), returns true for composite
 func polynomials(r, n int) bool {
+    //getting the bound for the loop
     phi := math.Sqrt(float64(EulersTotient(r)))
     bin := math.Log2((float64(n)))
     a_bound := math.Floor(phi * bin)
     x := []*big.Int{}
 
     for a := 1; a < int(a_bound); a++ {
+      //finds the coefficients of the polynomials
+      //if they are not equal mod (x^r -1, n), return true
       x = multiplyPolynomial([]*big.Int{big.NewInt(int64(a)), big.NewInt(1)}, n, r)
       for i := 0; i < len(x); i++ {
         if (x[i].Mod(x[i], big.NewInt(int64(n)))).Int64() != 0 {
@@ -124,27 +127,34 @@ func EulersTotient(n int) int {
   return result
 }
 
+//returns slice of integers
+//performs fast polynomial multiplication for multiple values of a
 func multiplyPolynomial(poly []*big.Int, exponent, r int) ([]*big.Int) {
-	x := make([]*big.Int, int(r))
-
+  //creates a slice with length r
+	x := make([]*big.Int, r)
 	for i := 0; i < len(x); i++ {
 		x[i] = big.NewInt(0)
 	}
 
+  //a is the head of the base polynomial
 	a := poly[0]
+  //set head equal to 1
 	x[0] = big.NewInt(1)
 	n := exponent
 
+  //iterates downward through the exponent and gets the coefficients for that exponent
+  //performs the odd combination
 	for exponent > 0 {
 		if exponent % 2 == 1 {
 			x = combinePolynomial(x, poly, n, r)
 		}
-
+    //performs the even combination
 		poly = combinePolynomial(poly, poly, n, r)
 		exponent /= 2
 	}
 
 	x[0].Sub(x[0], a)
+  //performs modulo X^r -1, n
 	x[n % r].Sub(x[n % r], big.NewInt(1))
 
 	return x
@@ -152,18 +162,26 @@ func multiplyPolynomial(poly []*big.Int, exponent, r int) ([]*big.Int) {
 
 func combinePolynomial(p1 []*big.Int, p2 []*big.Int, n, r int) ([]*big.Int) {
 	foo := big.NewInt(0)
+  //create a zeroed slice with length r
 	x := make([]*big.Int, r)
 	for i := 0; i < len(x); i++ {
 		x[i] = big.NewInt(0)
+    fmt.Println(x[i])
 	}
 
+  //loop through polynomials
 	for i := 0; i < len(p1); i++ {
 		for j := 0; j < len(p2); j++ {
+      //if in index
 			if (i + j) < r {
+        //multiply value in p1 with value in p2
 				foo.Mul(p1[i], p2[j])
+        //add multiplied value (foo) to position i+j in x
 				x[i + j].Add(x[i + j], foo)
+        //if overreach, adjust indices accordingly
 			} else {
 				foo.Mul(p1[i], p2[j])
+        //add foo to position
 				x[(i + j) % r].Add(x[(i + j) % r], foo)
 			}
 		}
